@@ -1,8 +1,9 @@
 from pynput import keyboard
 import time
+import threading
 
 
-def key_press():
+def key_press(key):
     return False
 
 
@@ -12,21 +13,36 @@ def key_release(key):
 
 
 def start_timer():
+    global timer_running
+
     with keyboard.Listener(on_release = key_release) as listener:
         listener.join()
     
+    timer_running = True 
     return time.time()
 
 
 def end_timer():
+    global timer_running
+
     with keyboard.Listener(on_press = key_press) as listener:
         listener.join()
+    
+    timer_running = False
 
 
+timer_running = True
 
 def timer():
     start_time = start_timer()
-    end_timer()
+    threading.Thread(target=end_timer).start()
+
+    while timer_running:
+        time .sleep(0.1) 
+        print(f'\033[H\033[2J{time.time() - start_time:.2f}')
+   
+
+timer()     
 
 # import threading
 # import time
