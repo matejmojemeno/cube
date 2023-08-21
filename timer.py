@@ -1,91 +1,87 @@
-from pynput import keyboard
+import sys
 import time
 import threading
 
+from pynput import keyboard
 
-def key_press(key):
-    return False
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt, QTimer
 
-
-def key_release(key):
-    if key == keyboard.Key.space:
-        return False
+from scramble import scramble_3x3
 
 
-def start_timer():
-    global timer_running
+class TimerWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
-    with keyboard.Listener(on_release = key_release) as listener:
-        listener.join()
+        self.setGeometry(100, 100, 1080, 720)
+
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        self.layout = QVBoxLayout(central_widget)
+
+        self.create_scramble_label()
+        self.create_time_label()
+        self.create_timer()
+
+
+
+    def keyPressEvent(self, event):
+        if not self.timer.isActive() and event.key() == Qt.Key_Space:
+            self.timer_ready()
+        elif self.timer.isActive():
+            self.timer.stop()
+
+            if time.time() - self.start_time > 0.1:
+                self.reset()
+
+
+    def keyReleaseEvent(self, event):
+        if not self.timer.isActive() and event.key() == Qt.Key_Space and not self.timer_stopped:
+            self.start_time = time.time()
+            self.timer.start(10)
+
+
+    def update_timer(self):
+        elapsed_time = time.time() - self.start_time
+        self.time_label.setStyleSheet('font-size: 300px; color: black')
+        self.time_label.setText(f"{elapsed_time:.1f}")
+
+
+    def create_scramble_label(self):
+        self.scramble_label = QLabel(scramble_3x3(), self)
+        self.scramble_label.setStyleSheet('font-size: 30px')
+        self.layout.addWidget(self.scramble_label, alignment=Qt.AlignTop | Qt.AlignHCenter)
     
-    timer_running = True 
-    return time.time()
-
-
-def end_timer():
-    global timer_running
-
-    with keyboard.Listener(on_press = key_press) as listener:
-        listener.join()
     
-    timer_running = False
+    def create_time_label(self):
+        self.time_label = QLabel('0.0', self)
+        self.time_label.setStyleSheet('font-size: 200px')
+        self.layout.addWidget(self.time_label, alignment=Qt.AlignCenter)
+    
+
+    def create_timer(self):
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_timer)
+        self.timer_stopped = False
+    
+
+    def timer_ready(self):
+        self.timer_stopped = False
+        self.scramble_label.hide()
+        self.time_label.setStyleSheet('font-size: 300px; color: green')
+        self.time_label.setText('0.0')
 
 
-timer_running = True
+    def reset(self):
+        self.timer_stopped = True
+        self.scramble_label.setText(scramble_3x3())
+        self.scramble_label.show()
+        self.time_label.setStyleSheet('font-size: 200px')
 
-def timer():
-    start_time = start_timer()
-    threading.Thread(target=end_timer).start()
 
-    while timer_running:
-        time .sleep(0.1) 
-        print(f'\033[H\033[2J{time.time() - start_time:.2f}')
-   
-
-timer()     
-
-# import threading
-# import time
-# from pynput import keyboard
-
-# # Global variables
-# start_time = None
-# timer_running = False
-
-# def start_timer():
-#     global start_time, timer_running
-#     start_time = time.time()
-#     timer_running = True
-#     print("Timer started.")
-
-# def stop_timer():
-#     global start_time, timer_running
-#     elapsed_time = time.time() - start_time
-#     timer_running = False
-#     print(f"Timer stopped. Elapsed time: {elapsed_time:.2f} seconds")
-
-# def on_key_press(key):
-#     if timer_running:
-#         stop_timer()
-
-# def on_key_release(key):
-#     if key == keyboard.Key.space:
-#         start_timer()
-
-# def key_listener():
-#     with keyboard.Listener(on_press=on_key_press, on_release=on_key_release) as listener:
-#         listener.join()
-
-# # Start the key listener in a separate thread
-# listener_thread = threading.Thread(target=key_listener)
-# listener_thread.start()
-
-# # Your main program can continue running here
-# while True:
-#     if timer_running:
-#         current_time = time.time() - start_time
-#         print(f"Timer running: {current_time:.2f} seconds")
-#     else:
-#         print("Press spacebar to start the timer.")
-
-#     # You can put your main program logic here
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = TimerWindow()
+    window.show()
+    sys.exit(app.exec_())
