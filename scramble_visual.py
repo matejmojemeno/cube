@@ -1,42 +1,52 @@
 import numpy as np
 
-WHITE = 0
-ORANGE = 1
-GREEN = 2
-RED = 3
-BLUE = 4
-YELLOW = 5
 
-side_colors = [np.ones((3,3)) * i for i in range(6)]
-
-def right_turn():
-    np.rot90(side_colors[RED])
-    green_side_copy = side_colors[GREEN][:,2].copy()
-    side_colors[GREEN][:,2] = side_colors[YELLOW][:,2]
-    side_colors[YELLOW][:,2] = side_colors[BLUE][:,0]
-    side_colors[BLUE][:,0] = side_colors[WHITE][:,2]
-    side_colors[WHITE][:,2] = green_side_copy
+class ScrambleVisual:
+    WHITE: int = 0
+    ORANGE: int = 1
+    GREEN: int = 2
+    RED: int = 3
+    BLUE: int = 4
+    YELLOW: int = 5
+    
+    
+    def __init__(self):
+        self.side_colors: list[np.ndarray] = [np.ones((3, 3)) * i for i in range(6)]
 
 
-def right_prime_turn():
-    for i in range(3):
-        right_turn()
+    def right_turn(self):
+        np.rot90(self.side_colors[self.RED], axes=(1,0))
+        green_side_copy = self.side_colors[self.GREEN][:, 2].copy()
+        self.side_colors[self.GREEN][:, 2] = self.side_colors[self.YELLOW][:, 2]
+        self.side_colors[self.YELLOW][:, 2] = self.side_colors[self.BLUE][:, 0]
+        self.side_colors[self.BLUE][:, 0] = self.side_colors[self.WHITE][:, 2]
+        self.side_colors[self.WHITE][:, 2] = green_side_copy
 
 
-def left_turn():
-    np.rot90(side_colors[ORANGE])
-    green_side_copy = side_colors[GREEN][:,0].copy()
-    side_colors[GREEN][:,0] = side_colors[WHITE][:,0]
-    side_colors[WHITE][:,0] = side_colors[BLUE][:,2]
-    side_colors[BLUE][:,2] = side_colors[YELLOW][:,0]
-    side_colors[YELLOW][:,0] = green_side_copy
+
+    def left_turn(self):
+        np.rot90(self.side_colors[self.ORANGE])
+        green_side_copy = self.side_colors[self.GREEN][:, 0].copy()
+        self.side_colors[self.GREEN][:, 0] = self.side_colors[self.WHITE][:, 0]
+        self.side_colors[self.WHITE][:, 0] = self.side_colors[self.BLUE][:, 2]
+        self.side_colors[self.BLUE][:, 2] = self.side_colors[self.YELLOW][:, 0]
+        self.side_colors[self.YELLOW][:, 0] = green_side_copy
 
 
-def left_prime_turn():
-    for i in range(3):
-        left_turn()
+    def up_turn(self):
+        np.rot90(self.side_colors[self.WHITE], axes=(1,0))
+        green_side_copy = self.side_colors[self.GREEN][0,:].copy()
+        self.side_colors[self.GREEN][0,:] = self.side_colors[self.RED][0,:]
+        self.side_colors[self.RED][0,:] = self.side_colors[self.BLUE][0,:]
+        self.side_colors[self.BLUE][0,:] = self.side_colors[self.ORANGE][0,:]
+        self.side_colors[self.ORANGE][0,:] = green_side_copy
 
-left_turn()
-for i in range(6):
-    print(side_colors[i])
-    print()
+
+    def down_turn(self):
+        np.rot90(self.side_colors[self.YELLOW])
+        green_side_copy = self.side_colors[self.GREEN][2,:].copy()
+        self.side_colors[self.GREEN][2,:] = self.side_colors[self.RED][2,:]
+        self.side_colors[self.RED][2,:] = self.side_colors[self.BLUE][2,:]
+        self.side_colors[self.BLUE][2,:] = self.side_colors[self.ORANGE][2,:]
+        self.side_colors[self.ORANGE][2,:] = green_side_copy
+        
