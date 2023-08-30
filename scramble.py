@@ -1,9 +1,9 @@
 import random
 
 
-MOVES: [str] = ['U', 'D', 'R', 'L', 'F', 'B']
-DIRECTIONS: [str] = ['', '\'', '2']
-OPPOSITES = {'U': 'UD', 'D': 'UD', 'R': 'RL', 'L': 'RL', 'F': 'FB', 'B': 'FB'}
+MOVES: list[str] = ['U', 'D', 'R', 'L', 'F', 'B']
+DIRECTIONS: list[str] = ['', '\'', '2']
+OPPOSITES: dict[str, str] = {'U': 'UD', 'D': 'UD', 'R': 'RL', 'L': 'RL', 'F': 'FB', 'B': 'FB'}
 
 
 def generate_scramble(scramble_length: int = 20) -> str:
@@ -25,3 +25,4 @@ def scramble_3x3() -> str:
 
 def scramble_2x2():
     return generate_scramble(random.randint(20, 22))
+
