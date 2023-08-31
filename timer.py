@@ -1,8 +1,8 @@
 import sys
 import time
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget
-from PyQt5.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, QTimer
 
 from scramble import scramble_3x3
 
@@ -22,7 +22,7 @@ class TimerWindow(QMainWindow):
         self.create_timer()
 
     def keyPressEvent(self, event):
-        if not self.timer.isActive() and event.key() == Qt.Key_Space:
+        if not self.timer.isActive() and event.key() == Qt.Key.Key_Space:
             self.timer_ready()
         elif self.timer.isActive():
             self.timer.stop()
@@ -33,7 +33,7 @@ class TimerWindow(QMainWindow):
     def keyReleaseEvent(self, event):
         if (
             not self.timer.isActive()
-            and event.key() == Qt.Key_Space
+            and event.key() == Qt.Key.Key_Space
             and not self.timer_stopped
         ):
             self.start_time = time.time()
@@ -41,20 +41,21 @@ class TimerWindow(QMainWindow):
 
     def update_timer(self):
         elapsed_time = time.time() - self.start_time
-        self.time_label.setStyleSheet("font-size: 300px; color: black")
+        self.time_label.setStyleSheet("font-size: 300px; color: white")
         self.time_label.setText(f"{elapsed_time:.1f}s")
 
     def create_scramble_label(self):
         self.scramble_label = QLabel(scramble_3x3(), self)
         self.scramble_label.setStyleSheet("font-size: 30px")
         self.layout.addWidget(
-            self.scramble_label, alignment=Qt.AlignTop | Qt.AlignHCenter
+            self.scramble_label,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter,
         )
 
     def create_time_label(self):
         self.time_label = QLabel("0.0s", self)
         self.time_label.setStyleSheet("font-size: 200px")
-        self.layout.addWidget(self.time_label, alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def create_timer(self):
         self.timer = QTimer(self)
@@ -78,4 +79,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = TimerWindow()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
