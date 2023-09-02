@@ -45,3 +45,19 @@ class ScrambleVisual:
         self.side_colors[self.RED][2, :] = self.side_colors[self.BLUE][2, :]
         self.side_colors[self.BLUE][2, :] = self.side_colors[self.ORANGE][2, :]
         self.side_colors[self.ORANGE][2, :] = green_side_copy
+
+    def front_turn(self):
+        self.side_colors[self.GREEN] = np.rot90(self.side_colors[self.GREEN])
+        white_side_copy = self.side_colors[self.WHITE][2, :].copy()
+        self.side_colors[self.WHITE][2, :] = self.side_colors[self.ORANGE][:, 2]
+        self.side_colors[self.ORANGE][:, 2] = self.side_colors[self.YELLOW][0, :]
+        self.side_colors[self.YELLOW][0, :] = self.side_colors[self.RED][:, 0]
+        self.side_colors[self.RED][:, 0] = white_side_copy
+
+    def back_turn(self):
+        self.side_colors[self.BLUE] = np.rot90((self.side_colors[self.BLUE]))
+        white_side_copy = self.side_colors[self.WHITE][0, :].copy()
+        self.side_colors[self.WHITE][0, :] = self.side_colors[self.RED][:, 2]
+        self.side_colors[self.RED][:, 2] = self.side_colors[self.YELLOW][2, :]
+        self.side_colors[self.YELLOW][2, :] = self.side_colors[self.ORANGE][:, 0]
+        self.side_colors[self.ORANGE][:, 0] = white_side_copy
