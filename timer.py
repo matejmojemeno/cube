@@ -3,8 +3,10 @@ import time
 
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget
 from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QPainter, QBrush, QColor, QPen
 
 from scramble import scramble_3x3
+from scramble_visual import ScrambleVisual
 
 
 class TimerWindow(QMainWindow):
@@ -20,6 +22,8 @@ class TimerWindow(QMainWindow):
         self.create_scramble_label()
         self.create_time_label()
         self.create_timer()
+
+        self.painted = True
 
     def keyPressEvent(self, event):
         if not self.timer.isActive() and event.key() == Qt.Key.Key_Space:
@@ -45,7 +49,8 @@ class TimerWindow(QMainWindow):
         self.time_label.setText(f"{elapsed_time:.1f}s")
 
     def create_scramble_label(self):
-        self.scramble_label = QLabel(scramble_3x3(), self)
+        self.scramble = scramble_3x3()
+        self.scramble_label = QLabel(self.scramble, self)
         self.scramble_label.setStyleSheet("font-size: 30px")
         self.layout.addWidget(
             self.scramble_label,
@@ -63,16 +68,49 @@ class TimerWindow(QMainWindow):
         self.timer_stopped = False
 
     def timer_ready(self):
+        self.painted = False
         self.timer_stopped = False
         self.scramble_label.hide()
         self.time_label.setStyleSheet("font-size: 300px; color: green")
         self.time_label.setText("0.0s")
+        self.update()
 
     def reset(self):
+        self.painted = True
         self.timer_stopped = True
-        self.scramble_label.setText(scramble_3x3())
+        self.scramble = scramble_3x3()
+        self.scramble_label.setText(self.scramble)
         self.scramble_label.show()
         self.time_label.setStyleSheet("font-size: 200px")
+        self.update()
+
+    def paintEvent(self, event):
+        if not self.painted:
+            return
+        
+        painter = QPainter(self)
+        pen = QPen(QColor(0, 0, 0))
+        pen.setWidth(3)
+        pen.setStyle(Qt.PenStyle.SolidLine)
+        painter.setPen(pen)
+
+        scrambled_cube = ScrambleVisual().apply_scramble(self.scramble.split())
+
+        for i in range(3):
+            for j in range(3):
+                painter.setBrush(ScrambleVisual.COLORS[scrambled_cube[0][j, i]])
+                painter.drawRect(800 + i*60, 120 + j*60, 60, 60)
+        
+        for i in range(4):
+            for j in range(3):
+                for k in range(3):
+                    painter.setBrush(ScrambleVisual.COLORS[scrambled_cube[i + 1][k, j]])
+                    painter.drawRect(620 + i*180 + j*60, 300 + k*60, 60, 60)
+        
+        for i in range(3):
+            for j in range(3):
+                painter.setBrush(ScrambleVisual.COLORS[scrambled_cube[5][j, i]])
+                painter.drawRect(800 + i*60, 480 + j*60, 60, 60)             
 
 
 if __name__ == "__main__":

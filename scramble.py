@@ -25,4 +25,3 @@ def scramble_3x3() -> str:
 
 def scramble_2x2():
     return generate_scramble(random.randint(20, 22))
-
